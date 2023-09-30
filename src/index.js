@@ -3,11 +3,18 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-
+import ResponsiveAppBar from './components/navbar';
+import Signup from './components/SignUp';
+import SignIn from './components/Login';
+import { BrowserRouter } from 'react-router-dom';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    
+    <BrowserRouter>
+      <ResponsiveAppBar />
+      <App />
+    </BrowserRouter>
   </React.StrictMode>
 );
 
