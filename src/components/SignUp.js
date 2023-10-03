@@ -17,6 +17,8 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
+import ReCAPTCHA from "react-google-recaptcha";
+
 
 
 
@@ -28,6 +30,8 @@ export default function SignUp() {
   const [showMatchPassword, setShowMatchPassword] = useState(false);
   const [matchPassword, setMatchPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [recaptchaValue, setRecaptchaValue] = useState(null);
+
   function handleSetPassword(event) {
     setPassword(event.target.value);
   }
@@ -76,6 +80,11 @@ export default function SignUp() {
       return;
     }
 
+    if (!recaptchaValue) {
+      alert('Please complete the reCAPTCHA.');
+      return;
+    }
+
     console.log({
       email: data.get('email'),
       password: data.get('password'),
@@ -112,9 +121,7 @@ export default function SignUp() {
             }}
             >
               <CardContent>
-                {/* <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar> */}
+                
                 <Typography
                   component="h1"
                   variant="h5"
@@ -240,6 +247,13 @@ export default function SignUp() {
                     </Grid>
 
                   </Grid>
+
+                  <ReCAPTCHA
+  sitekey="6LdsJG0oAAAAAOXca_AclGN8AwpXMQDbw0NnnIBI"
+  onChange={(value) => setRecaptchaValue(value)}
+  style={{ marginTop: '16px' }}
+/>
+
                   <Button
                     type="submit"
                     fullWidth  // Make the button take the full width of its container
@@ -254,6 +268,7 @@ export default function SignUp() {
                         backgroundColor: "rgba(12, 127, 136, 0.9)", // Change the color when hovering
                       },
                     }}
+                    // disabled={recaptchaValue === null}
                   >
                     Sign Up
                   </Button>

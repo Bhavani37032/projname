@@ -36,7 +36,7 @@ const OtpAuth = () => {
                 <div className="row">
                     <div className="col text-center">
                         <h2>Welcome to the page!!!</h2>
-                        <p>Enter the OTP sent to you to verify your identity</p>
+                        <p>Enter the OTP sent to your email address to get logged in</p>
 
                         {otp.map((data, index) => {
                             return (
