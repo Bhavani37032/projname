@@ -9,15 +9,19 @@ import ResponsiveAppBar from './components/navbar';
 import Signup from './components/SignUp';
 import SignIn from './components/Login';
 import { BrowserRouter } from 'react-router-dom';
+import { UserAuthContextProvider } from "./context/UserAuthContext";
+
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    
     <BrowserRouter>
-      <ResponsiveAppBar />
-      <App />
+      <UserAuthContextProvider> {/* Wrap your entire app with UserAuthContextProvider */}
+        <App />
+      </UserAuthContextProvider>
     </BrowserRouter>
   </React.StrictMode>
+
 );
 
 // If you want to start measuring performance in your app, pass a function

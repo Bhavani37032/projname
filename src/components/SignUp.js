@@ -3,103 +3,71 @@ import { useState } from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import PasswordChecklist from "react-password-checklist";
+// import PasswordChecklist from "react-password-checklist";
 import { Card, CardContent } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import ReCAPTCHA from "react-google-recaptcha";
-
-
-
+import { useForm } from "react-hook-form";
+import axios from 'axios';
 
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-  const [password, setPassword] = useState("");
+  
   const [showPassword, setShowPassword] = useState(false);
-  const [showMatchPassword, setShowMatchPassword] = useState(false);
-  const [matchPassword, setMatchPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [recaptchaValue, setRecaptchaValue] = useState(null);
+  const { register, handleSubmit, watch, formState: { errors }, } = useForm({
+    mode:'onChange'
+  });
 
-  function handleSetPassword(event) {
-    setPassword(event.target.value);
-  }
-  function handleSetMatchPassword(event) {
-    setMatchPassword(event.target.value);
-  }
 
-  const isEmailValid = (email) => {
-    // Regular expression for email validation
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
+  // function handleSetPassword(event) {
+  //   setPassword(event.target.value);
+  // }
+  // function handleSetConfirmPassword(event) {
+  //   setConfirmPassword(event.target.value);
+  // }
+
+  
+
+  const onSubmit = async (data) => {
+    if (recaptchaValue) {
+      try {
+        const response = await axios.post('http://localhost:8080/api/customers', data);
+        console.log('Form data sent successfully:', response.data);
+        // You can add further actions or redirections upon successful submission
+      } catch (error) {
+        console.error('Error sending form data:', error);
+        // Handle errors here, e.g., show an error message to the user
+      }
+    } else {
+      // Set an error message for the CAPTCHA field
+      setRecaptchaValue(null); // Reset the CAPTCHA value
+    }
   };
 
-  const isPasswordValid = (password) => {
-    // Password must be at least 8 characters long
-    return password.length >= 8;
-  };
+  const password = watch('password')
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const firstName = data.get('firstName');
-    const lastName = data.get('lastName');
-    const email = data.get('email');
-    const password = data.get('password');
-    const accNumber = data.get('accNumber');
-    const ifscCode = data.get('ifscCode');
-
-    if (!firstName.trim()) {
-      alert('First name cannot be empty.');
-      return;
-    }
-
-    if (!lastName.trim()) {
-      alert('Last name cannot be empty.');
-      return;
-    }
-
-    if (!isEmailValid(email)) {
-      alert('Please enter a valid email address.');
-      return;
-    }
-
-    if (!isPasswordValid(password)) {
-      alert('Please enter a valid password with at least 8 characters.');
-      return;
-    }
-
-    if (!recaptchaValue) {
-      alert('Please complete the reCAPTCHA.');
-      return;
-    }
-
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
 
   return (
     <Box
-      // sx={{
-      //   marginTop: '16px',      // Add spacing at the top of the form
-      //   padding: '16px',        // Add padding inside the box
-      //   backgroundColor: 'white',// Set the background color of the box
-      //   borderRadius: '8px',    // Add rounded corners to the box
-      //   border: '1px solid #ccc',
-      // }}
+    // sx={{
+    //   marginTop: '16px',      // Add spacing at the top of the form
+    //   padding: '16px',        // Add padding inside the box
+    //   backgroundColor: 'white',// Set the background color of the box
+    //   borderRadius: '8px',    // Add rounded corners to the box
+    //   border: '1px solid #ccc',
+    // }}
     >
       <ThemeProvider theme={defaultTheme}>
         <Container component="main" maxWidth="xs">
@@ -121,7 +89,7 @@ export default function SignUp() {
             }}
             >
               <CardContent>
-                
+
                 <Typography
                   component="h1"
                   variant="h5"
@@ -133,7 +101,7 @@ export default function SignUp() {
                   Sign up now to get started with an account
                 </Typography>
 
-                <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+                <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <TextField
@@ -144,7 +112,14 @@ export default function SignUp() {
                         id="firstName"
                         label="First Name"
                         autoFocus
+                        {...register("firstName", { required: "First Name is required" })}
                       />
+                      {errors.firstName?.message && (
+                        <Typography variant="caption" color="error">
+                          {errors.firstName?.message}
+                        </Typography>
+                      )}
+
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <TextField
@@ -154,7 +129,13 @@ export default function SignUp() {
                         label="Last Name"
                         name="lastName"
                         autoComplete="family-name"
+                        {...register("lastName", { required: "Last Name is required" })}
                       />
+                      {errors.lastName?.message && (
+                        <Typography variant="caption" color="error">
+                          {errors.lastName?.message}
+                        </Typography>
+                      )}
                     </Grid>
                     <Grid item xs={12}>
                       <TextField
@@ -164,19 +145,26 @@ export default function SignUp() {
                         label="Email Address"
                         name="email"
                         autoComplete="email"
+                        {...register("email", { required: "Email is required", pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i, message: "Enter email in valid format" } })}
                       />
+                      {errors.email?.message && (
+                        <Typography variant="caption" color="error">
+                          {errors.email?.message}
+                        </Typography>
+                      )}
                     </Grid>
                     <Grid item xs={12}>
                       <TextField
                         required
                         fullWidth
-                        name="password"
-                        label="Password"
+                        // name="password"
+                        // label="Password"
                         type={showPassword ? 'text' : 'password'}
-                        id="password"
-                        value={password}
-                        onChange={handleSetPassword}
-                        autoComplete="new-password"
+                        // id="password"
+                        // value={password}
+                        // onChange={handleSetPassword}
+                        // autoComplete="new-password"
+                        placeholder='Password'
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
@@ -189,41 +177,73 @@ export default function SignUp() {
                             </InputAdornment>
                           ),
                         }}
+
+                        {...register("password", { required: "Password is required", 
+                         pattern: { 
+                          value: /^(?=.{8,}$)(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*\W).*$/,
+                          message: "Password should contain atleast an uppercase letter, a lowercase letter, a number and a special character" 
+                        },
+                        minLength:{
+                          value:8,
+                          message:"Minimum required length is 8"
+                        },
+                        })}
                       />
+                       {errors.password?.message && (
+                        <Typography variant="caption" color="error">
+                          {errors.password?.message}
+                        </Typography>
+                      )}  
+
                     </Grid>
 
                     <Grid item xs={12}>
                       <TextField
                         required
                         fullWidth
-                        name="Confirm Password"
-                        label="Confirm Password"
-                        type={showMatchPassword ? 'text' : 'password'} // Toggle visibility for match password
-                        id="ConfirmPassword"
-                        value={matchPassword}
-                        onChange={handleSetMatchPassword}
-                        autoComplete="new-password"
+                        // name="confirmPassword"
+                        // label="Confirm Password"
+                        type={showConfirmPassword ? 'text' : 'password'} // Toggle visibility for match password
+                        // id="confirmPassword"
+                        // value={confirmPassword}
+                        // onChange={handleSetConfirmPassword}
+                        // autoComplete="new-password"
+                        placeholder='Confirm Password'
+                        onPaste={(e)=>{
+                          e.preventDefault()
+                          return false;
+                        }}
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
                               <IconButton
-                                onClick={() => setShowMatchPassword(!showMatchPassword)}
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 edge="end"
                               >
-                                {showMatchPassword ? <Visibility /> : <VisibilityOff />}
+                                {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
                               </IconButton>
                             </InputAdornment>
                           ),
                         }}
+                        {...register("confirmPassword", { required: 'Confirm password is required',
+                    validate: (value) =>
+                    value === password || "Password and confirm passsword should match",
+                 })}
                       />
+                      {errors.confirmPassword?.message && (
+                        <Typography variant="caption" color="error">
+                          {errors.confirmPassword?.message}
+                        </Typography>
+                      )}  
                     </Grid>
-                    <PasswordChecklist
+                    {/* <PasswordChecklist
                       rules={["capital", "match", "specialChar", "minLength", "number"]}
                       minLength={8}
                       value={password}
                       valueAgain={matchPassword}
                       style={{ fontSize: '12px' }}
-                    />
+                      
+                    /> */}
 
                     <Grid item xs={12}>
                       <TextField
@@ -233,26 +253,43 @@ export default function SignUp() {
                         label="Account Number"
                         id="accNumber"
                         autoComplete="account number"
+                        {...register("accNumber", { required: "Account Number is required", pattern: { value:/^[0-9]{9,18}$/ , message: "Enter valid account number" } })}
                       />
+                      {errors.accNumber?.message && (
+								<Typography variant="caption" color="error">
+									{errors.accNumber?.message}
+								</Typography>
+							)}
                     </Grid>
                     <Grid item xs={12}>
                       <TextField
                         required
                         fullWidth
-                        name="ifscCode"
-                        label="IFSC Code"
-                        id="ifscCode"
-                        autoComplete="ifscCode"
+                        name="phnNumber"
+                        label="Mobile Number"
+                        id="phnNumber"
+                        autoComplete="phnNumber"
+                        {...register("phnNumber", { required: "Mobile Number is required", pattern: { value:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/ , message: "Enter valid mobile number" } })}
                       />
+                      {errors.phnNumber?.message && (
+								<Typography variant="caption" color="error">
+									{errors.phnNumber?.message}
+								</Typography>
+							)}
                     </Grid>
 
                   </Grid>
 
                   <ReCAPTCHA
-  sitekey="6LdsJG0oAAAAAOXca_AclGN8AwpXMQDbw0NnnIBI"
-  onChange={(value) => setRecaptchaValue(value)}
-  style={{ marginTop: '16px' }}
-/>
+                    sitekey="6LdsJG0oAAAAAOXca_AclGN8AwpXMQDbw0NnnIBI"
+                    onChange={(value) => setRecaptchaValue(value)}
+                    style={{ marginTop: '16px' }}
+                  />
+                  {recaptchaValue === null && (
+                    <Typography variant="caption" color="error" sx={{ marginTop: '8px' }}>
+                      Please complete the reCAPTCHA.
+                    </Typography>
+                  )}
 
                   <Button
                     type="submit"
@@ -268,22 +305,23 @@ export default function SignUp() {
                         backgroundColor: "rgba(12, 127, 136, 0.9)", // Change the color when hovering
                       },
                     }}
-                    // disabled={recaptchaValue === null}
+                  // disabled={recaptchaValue === null}
                   >
                     Sign Up
                   </Button>
                   <Grid container justifyContent="center">
                     <Grid item>
-                      <Link href="/signin" variant="body2" sx={{ color: "#ad1982" }}>
+                      <Link href="/login" variant="body2" sx={{ color: "#ad1982" }}>
                         Already have an account? Sign in
                       </Link>
                     </Grid>
                   </Grid>
+
                 </Box>
               </CardContent>
             </Card>
           </Box>
-          
+
         </Container>
       </ThemeProvider>
 
