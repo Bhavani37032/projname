@@ -43,7 +43,7 @@ export default function SignUp() {
   const onSubmit = async (data) => {
     if (recaptchaValue) {
       try {
-        const response = await axios.post('http://localhost:8080/api/customers', data);
+        const response = await axios.post('http://localhost:8082/auth/addNewCustomer', data);
         console.log('Form data sent successfully:', response.data);
         // You can add further actions or redirections upon successful submission
       } catch (error) {

@@ -6,6 +6,7 @@ import Sidebar from './components/navbar'
 import ForgotPassword from './components/ForgotPassword';
 import OtpAuth from './components/otpAuth';
 import PhoneSignUp from './components/PhoneSignUp';
+import OtpLogin from './components/Otpdemo';
 
 function App() {
   return <Routes>
@@ -15,6 +16,7 @@ function App() {
     <Route path='/resetpassword' element={<ForgotPassword />} />
     <Route path='/otp' element={<OtpAuth />} />
     <Route path='/phonelogin' element={<PhoneSignUp />} />
+    <Route path='/otplogin' element={<OtpLogin />} />
   </Routes>
 }
 

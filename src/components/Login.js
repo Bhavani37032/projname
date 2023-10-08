@@ -24,31 +24,25 @@ const defaultTheme = createTheme();
 export default function SignIn() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
     const password = data.get("password");
     try {
-      const response = await axios.get(
-        `http://localhost:8080/api/customers?email=${email}&password=${password}`
-      );
+      const response = await axios.post('http://localhost:8082/auth/generateToken', {
+        email,
+        password,
+      });
 
-      // Check if there's a matching user in the response
-      const users = response.data;
-
-      const matchingUser = users.find(
-        (user) => user.email === email && user.password === password
-      );
-
-      if (matchingUser) {
-        navigate('/otp'); // Redirect to the home page on successful login
-      } else {
-        alert('Invalid Credentials!! Please verify');
-      }
+      // Handle the response, e.g., store the JWT token and navigate to the next page on success.
+      console.log('Token:', response.data);
     } catch (error) {
-      console.error('Error validating user:', error);
-      alert('An error occurred while validating user.');
+      // Handle errors, e.g., display an error message to the user.
+      console.error('Error:', error);
+      setError('Invalid email or password. Please try again.');
     }
 
   };
@@ -120,6 +114,13 @@ export default function SignIn() {
                     ),
                   }}
                 />
+
+                {error && (
+                  <Typography variant="caption" color="error">
+                    {error}
+                  </Typography>
+                )}
+
                 <Grid container justifyContent="flex-end">
                   <Grid item>
                     <Link href="/phonelogin" variant="body2" sx={{ color: "#ad1982" }}>
@@ -127,6 +128,8 @@ export default function SignIn() {
                     </Link>
                   </Grid>
                 </Grid>
+
+
                 <Button
                   type="submit"
                   fullWidth
